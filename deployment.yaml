@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docsgeneratorservice
+  labels:
+    app: docsgeneratorservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: docsgeneratorservice
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: docsgeneratorservice
+    spec:
+      containers:
+      - name: docsgeneratorservice
+        image: abb.azurecr.io/docsgeneratorservice:v228
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 3
+          failureThreshold: 2
